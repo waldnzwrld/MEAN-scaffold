@@ -41,16 +41,9 @@ app.use(morgan(`dev`));
 //
 app.use(express.static(`${__dirname}/public`));
 
-//register the apiRouter by defining a URL segment 
-//
 
-/*
-app.use(`/api`, require(`./app/routes`));
-app.use(`/api/users`, require(`./app/routes/users`));
-app.use(`/api/courses`, require(`./app/routes/courses`));
-app.use(`/api/lessons`, require(`./app/routes/lessons`));
-app.use(`/api/assignments`, require(`./app/routes/assignments`));
-*/
+//app.use(`/api`, require(`./app/ROUTE`));
+
 
 //basic route for home page 
 //
@@ -62,7 +55,7 @@ app.get(`*`, (req, res) => {
 //Start the server 
 //
 let server = app.listen(config.port, () => {
-    console.log(`THWNN is ready on port: ${config.port}`);
+    console.log(`ready on port: ${config.port}`);
 });
 module.exports = server;
 
