@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>THWNN</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <script src="ui/semantic.min.js"></script>
+    <!-- build:js -->
+    <script src="jspm_packages/system.js"></script>
+    <script src="jspm.config.js"></script>
+    <script>
+            System.import('app/app').catch(console.error.bind(console));
+    </script>
+    <!-- endbuild -->
+    <link rel="stylesheet" type="text/css" href="ui/semantic.min.css">
+    <link rel="stylesheet" type="text/css" href="ui/style.css">
+
+</head>
+<body>
+<div id="app-container" class="pusher">
+  <app></app>
+</div>
+
+</body>
+</html>
