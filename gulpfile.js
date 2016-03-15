@@ -14,6 +14,7 @@ var   plumber = require('gulp-plumber'),
         nodemon = require('gulp-nodemon'),
         jspm = require('jspm'),
         path = require('path'),
+        pluralize = require('pluralize'),
         rename = require('gulp-rename'),
         template = require('gulp-template'),
         uglify = require('gulp-uglify'),
@@ -182,21 +183,41 @@ gulp.task('model', function(){
     var parent = yargs.parent || '';
     var child = yargs.child || '';
     var destPath = path.join(resolveToModels());
+    var pOpen = `/*`;
+    var pClose = `*/`;
+    var cOpen = `/*`;
+    var cClose = `*/`;
+    if (parent) {
+        pOpen = '';
+        pClose = '';
+    }
+
+    if (child) {
+        cOpen = '';
+        cClose ='';
+    }
 
     return gulp.src(paths.blankModel)
         .pipe(template({
             name: name,
             upCaseName: cap(name),
+            names: pluralize(name),
             parent: parent,
             upCaseParent: cap(parent),
             child: child,
-            upCaseChild: cap(child)
+            upCaseChild: cap(child),
+            children: pluralize(child),
+            pOpen: pOpen,
+            pClose: pClose,
+            cOpen: cOpen,
+            cClose: cClose
         }))
         .pipe(rename(function(path){
             path.basename = path.basename.replace('temp', name);
         }))
         .pipe(gulp.dest(destPath));
 });
+
 
 
 

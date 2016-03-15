@@ -1,15 +1,15 @@
 'use strict';
 let   mongoose = require('mongoose'),
         Schema = mongoose.Schema,
-        //uncomment this line if this model has children
-        //<%= upCaseChild %> = require('./<%= child %>'), 
+        <%= cOpen %> <%= upCaseChild %> = require('./<%= child %>'), <%= cClose %>
 
   ///////////////////////////////////////////////////////////
  //                     Model                        //
 //////////////////////////////////////////////////////////
         
         <%= name %>Schema = new Schema({
-            owner : {type : mongoose.Schema.Types.ObjectId, ref : '<%= upCaseParent %>', index : true},
+            <%= pOpen %> owner : {type : mongoose.Schema.Types.ObjectId, ref : '<%= upCaseParent %>', index : true}, <%= pClose %>
+            <%= cOpen %> <%= children %> : [ <%= upCaseChild %>.schema], <%= cClose %>
         });
 
 
@@ -17,11 +17,11 @@ let   mongoose = require('mongoose'),
  //                 Middleware                   //
 //////////////////////////////////////////////////////////
 
-
+<%= pOpen %>
 //On Save push to Parent
 <%= name %>Schema.post('save', (doc) => {
     var <%= upCaseParent %> = require('./<%= parent %>').model;
-    <%= upCaseParent %>.findOneAndUpdate({_id: doc.owner}, {$push: {<%= name %>s: doc} }, {new: true}, (err, <%= parent %>) => {
+    <%= upCaseParent %>.findOneAndUpdate({_id: doc.owner}, {$push: {<%= names %>: doc} }, {new: true}, (err, <%= parent %>) => {
     });
 });
 
@@ -30,38 +30,39 @@ let   mongoose = require('mongoose'),
     console.log('Updating <%= upCaseParent %>');
     if (req) {
         var <%= upCaseParent %> = require('./<%= parent %>').model;
-        <%= upCaseParent %>.findOneAndUpdate({_id: req.owner, '<%= name %>s._id': req._id}, {$set: {'<%= name %>s.$': req} }, {new: true}, (err, <%= parent %>) => {
+        <%= upCaseParent %>.findOneAndUpdate({_id: req.owner, '<%= names %>._id': req._id}, {$set: {'<%= names %>.$': req} }, {new: true}, (err, <%= parent %>) => {
             if (err)
                 console.log(err);
         });
     }
 }); 
 
-/*
-//Uncomment this section if this model has children
+//On Delete pull Child from Parent 
+<%= name %>Schema.post('remove', (doc) => {
+    let <%= upCaseParent %> = require('./<%= parent %>').model;
+    let itemId = doc._id;
+    try {
+        <%= upCaseParent %>.findOneAndUpdate({_id: doc.owner}, { $pull: {<%= names %>: {_id: doc._id } } }, {new: true}, (err, <%= parent %>) => {
+        });
+    } catch (err) {
+        console.log(err);
+    }
+}); 
+<%= pClose %>
+
+<%= cOpen %>
 //Cascade delete all Children 
 <%= name %>Schema.post('remove', (doc) => {
-    if (doc.<%= child %>s !== 0) {
-        doc.<%= child %>s.forEach((<%= child %>) => {
+    if (doc.<%= children %> !== 0) {
+        doc.<%= children %>.forEach((<%= child %>) => {
             <%= upCaseChild %>.model.findById(<%= child %>._id, (err, <%= child %>) => {
                 <%= child %>.remove();
             });
         });
     }
 });
-*/
+<%= cClose %>
 
-//On Delete pull Child from Parent 
-<%= name %>Schema.post('remove', (doc) => {
-    let <%= upCaseParent %> = require('./<%= parent %>').model;
-    let itemId = doc._id;
-    try {
-        <%= upCaseParent %>.findOneAndUpdate({_id: doc.owner}, { $pull: {<%= name %>s: {_id: doc._id } } }, {new: true}, (err, <%= parent %>) => {
-        });
-    } catch (err) {
-        console.log(err);
-    }
-}); 
 
   //////////////////////////////////////////////////////////
  //                   Exports                      //
