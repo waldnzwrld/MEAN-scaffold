@@ -1,7 +1,7 @@
 {
-  "name": "thwnn",
-  "version": "0.0.1",
-  "description": "Management utility for tenants",
+  "name": "scaffold",
+  "version": "0.1.0",
+  "description": "scaffolding for mean applications",
   "repository": {
     "type": "git",
     "url": "https://github.com/waldnzwrld/MEAN-scaffold.git"
