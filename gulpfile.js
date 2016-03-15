@@ -1,9 +1,9 @@
-//require gulp 
-//
+  ////////////////////////////////////////////////////////////
+ //                 Requirements                //
+////////////////////////////////////////////////////////////
+
 var gulp = require('gulp-help')(require('gulp'));
 
-//include plugins 
-//
 var   plumber = require('gulp-plumber'),
         watch = require('./semantic/tasks/watch'),
         build = require('./semantic/tasks/build'),
@@ -25,9 +25,10 @@ var   plumber = require('gulp-plumber'),
         stylish = require('jshint-stylish'),
         exec = require('child_process').exec;
         
-//Define functions
-//        
-        var root = 'public';
+  ////////////////////////////////////////////////////////////
+ //                    Functions                    //
+////////////////////////////////////////////////////////////  
+       
        //error logging
        //
         var onError = function(err) {
@@ -38,12 +39,15 @@ var   plumber = require('gulp-plumber'),
         var resolveTo = function(resolvePath) {
             return function(glob) {
                 glob = glob || '';
-                return path.resolve(path.join(root, resolvePath, glob));
+                return path.resolve(path.join(__dirname, resolvePath, glob));
             }
         };
 
-        var resolveToApp = resolveTo('app'); // public/app/{glob}
-        var resolveToComponents = resolveTo('app/components'); // public/app/components/{glob}
+        var resolveToApp = resolveTo('public/app'); // public/app/{glob}
+        var resolveToComponents = resolveTo('public/app/components'); // public/app/components/{glob}
+        var resolveToServices = resolveTo('public/app/services'); // public/app/services/{glob}
+        var resolveToModels = resolveTo('app/models'); // app/models/{glob}
+        var resolveToRoutes = resolveTo('app/routes'); // app/routes/{glob}
 
         // map of paths
         // 
@@ -51,14 +55,16 @@ var   plumber = require('gulp-plumber'),
             css: resolveToApp('**/*.css'),
             html: [
                 resolveToApp('**/*.html'),
-                path.join(root, 'index.html')
+                path.join('public', 'index.html')
             ],
-            blankTemplates: path.join(__dirname, 'generator', 'component/**/*.**'),
+            blankComponent: path.join(__dirname, 'generator', 'component/**/*.**'),
+            blankService: path.join(__dirname, 'generator', 'service/**/*.**'),
+            blankModel: path.join(__dirname, 'generator', 'model/**/*.**'),
             dist: path.join(__dirname, 'dist/')
         };
 
   ////////////////////////////////////////////////////////////
- //                      Tasks                         //
+ //                      Tasks                        //
 ////////////////////////////////////////////////////////////
 
 //Launch app and watch for changes
@@ -74,7 +80,7 @@ gulp.task('serve', function() {
         tasks: ['jshint']
     })
     .on('restart', function() {
-        console.log('Vita restarted for changes');
+        console.log('Restarted for changes');
     })
 });
 
@@ -91,28 +97,6 @@ gulp.task('jshint', function() {
         }))
         .pipe(jshint())
         .pipe(jshint.reporter(stylish));
-});
-
-//Create Angular components
-//
-gulp.task('component', function(){
-    var cap = function(val){
-        return val.charAt(0).toUpperCase() + val.slice(1);
-    };
-
-    var name = yargs.name;
-    var parentPath = yargs.parent || '';
-    var destPath = path.join(resolveToComponents(), parentPath, name);
-
-    return gulp.src(paths.blankTemplates)
-        .pipe(template({
-            name: name,
-            upCaseName: cap(name)
-        }))
-        .pipe(rename(function(path){
-            path.basename = path.basename.replace('temp', name);
-        }))
-        .pipe(gulp.dest(destPath));
 });
 
 //Build and minify app using jspm
@@ -140,8 +124,86 @@ gulp.task('build', function() {
         });
 });
 
-//Semantic UI Tasks
+  ////////////////////////////////////////////////////////////
+ //                   Generators                  //
+////////////////////////////////////////////////////////////
+
+//Create Angular components
 //
+gulp.task('component', function(){
+    var cap = function(val){
+        return val.charAt(0).toUpperCase() + val.slice(1);
+    };
+
+    var name = yargs.name;
+    var parentPath = yargs.parent || '';
+    var destPath = path.join(resolveToComponents(), parentPath, name);
+
+    return gulp.src(paths.blankComponent)
+        .pipe(template({
+            name: name,
+            upCaseName: cap(name)
+        }))
+        .pipe(rename(function(path){
+            path.basename = path.basename.replace('temp', name);
+        }))
+        .pipe(gulp.dest(destPath));
+});
+
+//Create Angular services
+//
+gulp.task('service', function(){
+    var cap = function(val){
+        return val.charAt(0).toUpperCase() + val.slice(1);
+    };
+
+    var name = yargs.name;
+    var destPath = path.join(resolveToServices());
+
+    return gulp.src(paths.blankService)
+        .pipe(template({
+            name: name,
+            upCaseName: cap(name)
+        }))
+        .pipe(rename(function(path){
+            path.basename = path.basename.replace('temp', name);
+        }))
+        .pipe(gulp.dest(destPath));
+});
+
+//Create cascade style mongoose models
+//
+gulp.task('model', function(){
+    var cap = function(val){
+        return val.charAt(0).toUpperCase() + val.slice(1);
+    };
+
+    var name = yargs.name;
+    var parent = yargs.parent || '';
+    var child = yargs.child || '';
+    var destPath = path.join(resolveToModels());
+
+    return gulp.src(paths.blankModel)
+        .pipe(template({
+            name: name,
+            upCaseName: cap(name),
+            parent: parent,
+            upCaseParent: cap(parent),
+            child: child,
+            upCaseChild: cap(child)
+        }))
+        .pipe(rename(function(path){
+            path.basename = path.basename.replace('temp', name);
+        }))
+        .pipe(gulp.dest(destPath));
+});
+
+
+
+  ////////////////////////////////////////////////////////////
+ //             Semantic Ui Tasks            //
+////////////////////////////////////////////////////////////
+
 gulp.task('watch', 'Watch for site/theme changes', watch);
 
 gulp.task('build-semantic', 'Builds all files from source', build);
@@ -151,6 +213,8 @@ gulp.task('build-assets', 'Copies all assets from source', buildAssets);
 
 gulp.task('clean', 'Clean dist folder', clean);
 
-//Make serve the default gulp task
-//
-gulp.task('default', ['mongo', 'jshint', 'serve'])
+  ///////////////////////////////////////////////////////////
+ //                      Default                     //
+//////////////////////////////////////////////////////////
+
+gulp.task('default', ['mongo', 'jshint', 'serve']);
