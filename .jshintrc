@@ -1,0 +1,17 @@
+{
+    "esversion" : 6,
+    "strict" : false,
+    "freeze" : true,
+    "browser" : true,
+    "jasmine": true,
+    "mocha": true,
+    "node" : true,
+    "globals" : {
+        "angular" : true,
+        "System": true
+    },
+    "undef" : true
+    //"unused" : "strict"
+    //"varstmt" : true, uncomment this when the move is made to ES6 overall
+}
+
